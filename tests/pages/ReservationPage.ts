@@ -1,6 +1,6 @@
+/* eslint-disable playwright/no-networkidle */
 import { Page, Locator, expect } from '@playwright/test';
 import { ProjectName, ROUTES } from '../lib/routes';
-import { OrderSummaryComponent } from '../components/OrderSummaryComponent';
 import { PaymentMethodComponent } from '../components/PaymentMethodComponent';
 import { PaymentMethodType, VOUCHER_METHOD } from '../lib/paymentMethods';
 
@@ -24,43 +24,46 @@ export class ReservationPage {
   readonly cancellationCheckbox: Locator;
   readonly businessCheckbox: Locator;
   readonly marketingCheckbox: Locator;
-  readonly orderSummary: OrderSummaryComponent;
+  readonly reserveAndPayButton: Locator;
   readonly paymentMethod: PaymentMethodComponent;
-  readonly voucherStatusIcon: Locator;
 
   constructor(page: Page, projectName: ProjectName) {
     this.page = page;
     this.projectName = projectName;
 
-    // Guest Details
-    this.firstNameInput = page.locator('#customer-firstname');
-    this.lastNameInput = page.locator('#customer-lastname');
-    this.emailInput = page.locator('#customer-email');
-    this.phoneInput = page.locator('#customer-phone');
-    this.streetInput = page.locator('#v-0-address1');
-    this.houseNumberInput = page.locator('#v-0-address2');
-    this.postalCodeInput = page.locator('#v-0-address3');
-    this.cityInput = page.locator('#v-0-address4');
+    // Guest Details - use semantic selectors (getByRole)
+    this.firstNameInput = page.getByRole('textbox', { name: /Jméno|Imię/ });
+    this.lastNameInput = page.getByRole('textbox', { name: /Příjmení|Nazwisko/ });
+    this.emailInput = page.getByRole('textbox', { name: /Emailová adresa|Adres e‑mail/ });
+    this.phoneInput = page.getByRole('textbox', { name: /Telefonní číslo|Numer telefonu/ });
+    this.streetInput = page.getByRole('textbox', { name: /Ulice|Ulica/ });
+    this.houseNumberInput = page.getByRole('textbox', { name: /Číslo popisné|Numer domu/ });
+    this.postalCodeInput = page.getByRole('textbox', { name: /PSČ|Kod pocztowy/ });
+    this.cityInput = page.getByRole('textbox', { name: /Město|Miasto/ });
 
     // Payment & Voucher
-    this.voucherButton = page.locator('.payment-form__coupon-actions button');
+    this.voucherButton = page.getByRole('button', { name: /poukaz|voucher|kupon/i });
 
     // Terms & Conditions
-    this.cancellationCheckbox = page.locator('#cancellation-conditions');
-    this.businessCheckbox = page.locator('#business-conditions');
-    this.marketingCheckbox = page.locator('#marketing');
-    this.voucherStatusIcon = page.locator('.payment-form__coupon-status-icon');
+    this.cancellationCheckbox = page.getByRole('checkbox', { name: /storno|anulowania/i });
+    this.businessCheckbox = page.getByRole('checkbox', { name: /obchodní|sprzedaży/i });
+    this.marketingCheckbox = page.getByRole('checkbox', { name: /marketing|promocyjne/i });
 
-    // Order Summary Component
-    this.orderSummary = new OrderSummaryComponent(page);
+    // Action Button
+    this.reserveAndPayButton = page.getByRole('button', {
+      name: /Rezervovat a zaplatit|Zarezerwować i zapłacić/,
+    });
 
     // Payment Method Component
-    this.paymentMethod = new PaymentMethodComponent(page);
+    this.paymentMethod = new PaymentMethodComponent(page, this.projectName);
   }
 
   async waitForPageLoad() {
     await this.page.waitForURL('**' + ROUTES[this.projectName].reservation + '/**');
     await expect(this.firstNameInput).toBeVisible();
+    await this.page
+      .locator('.order-summary:visible, .order-aside')
+      .waitFor({ state: 'visible', timeout: 10000 });
   }
 
   async fillGuestDetails(details: {
@@ -87,12 +90,14 @@ export class ReservationPage {
     await this.voucherButton.click();
 
     // Fill voucher code
-    const voucherInput = this.page.locator('.payment-form__coupon-form input').first();
+    const voucherInput = this.page.getByRole('textbox', {
+      name: /Vložte kód poukazu|Vložit slevový \/ dárkový|Wprowadź kod wartościowy/,
+    });
     if (await voucherInput.isVisible()) {
       await voucherInput.fill(code);
 
       // Click apply button (usually near voucher input)
-      const applyBtn = this.page.locator('.payment-form__coupon-form button');
+      const applyBtn = this.page.getByRole('button', { name: /Uplatnit|Zastosuj/ });
       if (await applyBtn.isVisible()) {
         await applyBtn.click();
       }
@@ -100,13 +105,13 @@ export class ReservationPage {
   }
 
   async assertVoucherAppliedSuccessfully() {
-    // Check that the status icon does NOT have is-error class
-    await expect(this.voucherStatusIcon).not.toContainClass(this.VOUCHER_STATUS_ICON_ERROR_CLASS);
+    await expect(
+      this.page.getByText(/byl úspěšně uplatněn|byl úspěšně aktivován|został pomyślnie aktywowany/)
+    ).toBeVisible();
   }
 
   async assertVoucherAppliedUnsuccessfully() {
-    // Check that the status icon has is-error class
-    await expect(this.voucherStatusIcon).toContainClass(this.VOUCHER_STATUS_ICON_ERROR_CLASS);
+    await expect(this.page.getByText(/není validní|není platný|nie jest ważny/)).toBeVisible();
   }
 
   async applyVoucherIfNeeded(method: PaymentMethodType, voucherCode: string) {
@@ -121,8 +126,10 @@ export class ReservationPage {
   }
 
   async submitReservation() {
-    await this.orderSummary.assertReserveButtonEnabled();
-    await this.orderSummary.submitReservation();
+    await this.page.waitForLoadState('networkidle');
+    await this.reserveAndPayButton.scrollIntoViewIfNeeded();
+    await this.reserveAndPayButton.isEnabled();
+    await this.reserveAndPayButton.click();
   }
 
   async checkCancellationPolicy() {
@@ -139,11 +146,6 @@ export class ReservationPage {
   }
 
   async assertReserveButtonEnabled() {
-    await expect(this.orderSummary.reserveAndPayButton).toBeEnabled();
-  }
-
-  async assertTotalPrice() {
-    // TODO: improve
-    expect(await this.orderSummary.getTotalPrice()).not.toBeUndefined();
+    await expect(this.reserveAndPayButton).toBeEnabled();
   }
 }

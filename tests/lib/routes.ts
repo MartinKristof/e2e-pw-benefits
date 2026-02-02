@@ -4,21 +4,21 @@ export const ROUTES = {
     order: '/objednavka',
     accommodation: '/ubytovani',
     reservation: '/rezervace',
-    status: '/status'
+    status: '/status',
   },
   pl: {
     homepage: '/',
     order: '/zamowienie',
     accommodation: '/nocleg',
     reservation: '/rezerwacja',
-    status: '/status'
+    status: '/status',
   },
   whitelabel: {
     homepage: '/',
     order: '/objednavka',
     accommodation: '/ubytovani',
     reservation: '/rezervace',
-    status: '/status'
+    status: '/status',
   },
 } as const;
 

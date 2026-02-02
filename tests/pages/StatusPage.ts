@@ -14,10 +14,12 @@ export class StatusPage {
   constructor(page: Page, projectName: ProjectName) {
     this.page = page;
     this.projectName = projectName;
-    // Success confirmation icon (checkmark circle)
-    this.successIcon = page.locator('.icon.is-large').first();
-    // Reservation summary details (by CSS class, language-neutral)
-    this.reservationSummary = page.locator('.status-info__title');
+    // Success confirmation icon - try semantic first, fallback to CSS
+    this.successIcon = page.locator('.order-status__img, .icon.is-large').first();
+    // Reservation summary - use semantic heading or fallback
+    this.reservationSummary = page
+      .getByRole('heading', { name: /odeslána|wysłane/i })
+      .or(page.locator('.status-info__title'));
   }
 
   async waitForPageLoad() {

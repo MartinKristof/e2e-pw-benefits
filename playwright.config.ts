@@ -10,6 +10,8 @@ export default defineConfig<BookingFixtures>({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
+    screenshot: 'only-on-failure',
+    video: 'on-first-retry',
     trace: 'on-first-retry',
     locale: 'cs-CZ',
     timezoneId: 'Europe/Prague',
@@ -29,7 +31,7 @@ export default defineConfig<BookingFixtures>({
         baseURL: 'https://test-fe-cz.dovolena-za-benefity.cz',
         paymentMethods: PROJECT_PAYMENT_METHODS.cz,
       },
-      // dependencies: ['setup-booking-urls'],
+      dependencies: ['setup-booking-urls'],
     },
     {
       name: 'pl',
@@ -40,7 +42,7 @@ export default defineConfig<BookingFixtures>({
         paymentMethods: PROJECT_PAYMENT_METHODS.pl,
         validVoucherCode: 'TESTVOUCHER002',
       },
-      // dependencies: ['setup-booking-urls'],
+      dependencies: ['setup-booking-urls'],
     },
     {
       name: 'whitelabel',
@@ -49,7 +51,7 @@ export default defineConfig<BookingFixtures>({
         baseURL: 'https://wa-fe-dzb-pluxee-cz-preprod.azurewebsites.net',
         paymentMethods: PROJECT_PAYMENT_METHODS.whitelabel,
       },
-      // dependencies: ['setup-booking-urls'],
+      dependencies: ['setup-booking-urls'],
     },
   ],
 });

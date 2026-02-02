@@ -13,9 +13,10 @@ export class NavigationComponent {
     this.page = page;
 
     // Select the "Accommodation reservation" link from navigation (language-neutral by role and text pattern)
-    this.accommodationReservationLink = page.locator('header .header__nav-item-link').first();
+    this.accommodationReservationLink = page
+      .getByRole('link', { name: /Rezervace ubytování|Rezerwacja/ })
+      .first();
   }
-
   async clickAccommodationReservation() {
     await this.accommodationReservationLink.click();
   }
