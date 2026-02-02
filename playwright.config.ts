@@ -1,15 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { BookingFixtures } from './tests/fixtures/bookingFixture';
-
-export const paymentMethods = [
-  // 'edenred-cafeteria',
-  // 'up-benefit-card',
-  // 'payment-card',
-  'edenred-benefit-card',
-  'pluxee-benefit-card',
-  'bank-transfer',
-  'voucher',
-];
+import { PROJECT_PAYMENT_METHODS } from './tests/lib/paymentMethods';
 
 export default defineConfig<BookingFixtures>({
   testDir: './tests',
@@ -22,7 +13,7 @@ export default defineConfig<BookingFixtures>({
     trace: 'on-first-retry',
     locale: 'cs-CZ',
     timezoneId: 'Europe/Prague',
-    validVoucherCode: 'TEST_VOUCHER_001',
+    validVoucherCode: 'TESTVOUCHER001',
   },
 
   projects: [
@@ -36,7 +27,7 @@ export default defineConfig<BookingFixtures>({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'https://test-fe-cz.dovolena-za-benefity.cz',
-        paymentMethods,
+        paymentMethods: PROJECT_PAYMENT_METHODS.cz,
       },
       // dependencies: ['setup-booking-urls'],
     },
@@ -46,8 +37,8 @@ export default defineConfig<BookingFixtures>({
         ...devices['Desktop Chrome'],
         baseURL: 'https://test-fe-pl.dovolena-za-benefity.cz',
         locale: 'pl-PL',
-        paymentMethods: paymentMethods.filter((method) => method !== 'edenred-benefit-card'), // Not available in PL
-        validVoucherCode: 'TEST_VOUCHER_001',
+        paymentMethods: PROJECT_PAYMENT_METHODS.pl,
+        validVoucherCode: 'TESTVOUCHER002',
       },
       // dependencies: ['setup-booking-urls'],
     },
@@ -56,7 +47,7 @@ export default defineConfig<BookingFixtures>({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'https://wa-fe-dzb-pluxee-cz-preprod.azurewebsites.net',
-        paymentMethods,
+        paymentMethods: PROJECT_PAYMENT_METHODS.whitelabel,
       },
       // dependencies: ['setup-booking-urls'],
     },

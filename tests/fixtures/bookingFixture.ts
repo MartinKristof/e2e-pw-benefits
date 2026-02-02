@@ -1,8 +1,8 @@
-import { test as base, FullProject, Page } from '@playwright/test';
+import { test as base, FullProject } from '@playwright/test';
 import { AccommodationPage, HomePage, OrderPage, ReservationPage, StatusPage } from '../pages';
 import { ProjectName } from '../lib/routes';
 
-type BookingFixtures = {
+export type BookingFixtures = {
   bookingUrl: string;
   paymentMethods: string[];
   projectName: string;
@@ -135,7 +135,7 @@ export const test = base.extend<BookingFixtures>({
     // Use a valid test booking URL - static booking for reliability
     // This is a real Booking.com link that we know works for testing
     const testBookingUrl =
-      'https://www.booking.com/hotel/cz/agate-prague-apartment.html?ss=Prague&ssne=&ssne_untouched=&efdco=1&label=gen173nr-10CAQoggI49ANIM1gEaDqIAQGYATO4ARfIAQzYAQPoAQH4AQGIAgGoAgG4AtrV_ssGwAIB0gIkMWJiMGFlMTYtMWQ0OC00MzI4LWEwNTUtOGMxMGZiYzM4MDNm2AIB4AIB&sid=5bd52a4cba49f216624c48ec909b6ff6&all_sr_blocks=1325247401_405141954_2_0_0&checkin=2026-02-01&checkout=2026-02-11&dest_id=-553173&dest_type=city&group_adults=2&group_children=0&hapos=1&highlighted_blocks=1325247401_405141954_2_0_0&hpos=1&matching_block_id=1325247401_405141954_2_0_0&no_rooms=1&req_adults=2&req_children=0&room1=A%2CA&sr_order=popularity&srpvid=7c9c89ae7d7107f3&type=total&ucfs=1';
+      'https://www.booking.com/hotel/cz/agate-prague-apartment.cs.html?aid=304142&label=gen173nr-10CAQoggI49ANIM1gEaDqIAQGYATO4ARfIAQzYAQPoAQH4AQGIAgGoAgG4AtrV_ssGwAIB0gIkMWJiMGFlMTYtMWQ0OC00MzI4LWEwNTUtOGMxMGZiYzM4MDNm2AIB4AIB&sid=eadea571e115a8a1b004c649ac6c5ef0&all_sr_blocks=1325247401_405141954_2_0_0&checkin=2026-02-02&checkout=2026-02-09&dest_id=-553173&dest_type=city&dist=0&group_adults=2&group_children=0&hapos=1&highlighted_blocks=1325247401_405141954_2_0_0&hpos=1&matching_block_id=1325247401_405141954_2_0_0&no_rooms=1&req_adults=2&req_children=0&room1=A%2CA&sb_price_type=total&sr_order=popularity&sr_pri_blocks=1325247401_405141954_2_0_0__48508&srepoch=1770020409&srpvid=127e3a9a3acd0439&type=total&ucfs=1&#room_1325247401';
 
     console.log(`Using static test Booking URL: ${testBookingUrl}`);
     await use(testBookingUrl);

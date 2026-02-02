@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { ProjectName, ROUTES } from '../lib/routes';
 
 /**
@@ -14,15 +14,17 @@ export class OrderPage {
   constructor(page: Page, projectName: ProjectName) {
     this.page = page;
     this.projectName = projectName;
-    this.bookingUrlInput = page
-      .locator('input[placeholder*="Paste"]')
-      .or(page.locator('input[placeholder*="Share"]'))
-      .first();
-    this.checkAvailabilityButton = page.locator('button.form-hotle-check__button');
+    this.bookingUrlInput = page.locator('form').getByRole('textbox');
+    this.checkAvailabilityButton = page.locator('form').getByRole('button');
+  }
+
+  async goto() {
+    await this.page.goto(ROUTES[this.projectName].order);
   }
 
   async waitForPageLoad() {
     await this.page.waitForURL(ROUTES[this.projectName].order);
+    await expect(this.bookingUrlInput).toBeVisible();
   }
 
   async fillBookingUrl(url: string) {
@@ -31,8 +33,5 @@ export class OrderPage {
 
   async checkAvailability() {
     await this.checkAvailabilityButton.click();
-    // Wait for the room selection to appear or for the continue button to become visible
-    // Don't use networkidle as it may not be reliable
-    await this.page.waitForSelector('button[type="submit"]', { timeout: 10000 }).catch(() => {});
   }
 }

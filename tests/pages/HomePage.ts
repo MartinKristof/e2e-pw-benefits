@@ -1,5 +1,6 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { ProjectName, ROUTES } from '../lib/routes';
+import { NavigationComponent } from '../components/NavigationComponent';
 
 /**
  * Page Object Model for Homepage
@@ -7,16 +8,14 @@ import { ProjectName, ROUTES } from '../lib/routes';
  */
 export class HomePage {
   readonly page: Page;
-  readonly accommodationReservationLink: Locator;
+  readonly navigation: NavigationComponent;
   readonly projectName: ProjectName;
 
   constructor(page: Page, projectName: ProjectName) {
     this.page = page;
     this.projectName = projectName;
-    // Select the "Accommodation reservation" link from navigation (language-neutral by role and text pattern)
-    this.accommodationReservationLink = page
-      .getByRole('link', { name: /accommodation|reservation|objednání|ubytování/i })
-      .first();
+    // Navigation Component
+    this.navigation = new NavigationComponent(page);
   }
 
   async goto() {
@@ -25,10 +24,11 @@ export class HomePage {
 
   async waitForPageLoad() {
     await this.page.waitForURL(ROUTES[this.projectName].homepage);
+    await expect(this.navigation.accommodationReservationLink).toBeVisible();
   }
 
   async clickAccommodationReservation() {
-    await this.accommodationReservationLink.click();
+    await this.navigation.clickAccommodationReservation();
   }
 
   async assertIsLoaded() {

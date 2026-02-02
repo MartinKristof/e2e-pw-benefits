@@ -15,20 +15,18 @@ export class StatusPage {
     this.page = page;
     this.projectName = projectName;
     // Success confirmation icon (checkmark circle)
-    this.successIcon = page
-      .locator('[class*="success"], [class*="check"], svg[class*="success"]')
-      .first();
+    this.successIcon = page.locator('.icon.is-large').first();
     // Reservation summary details (by CSS class, language-neutral)
     this.reservationSummary = page.locator('.status-info__title');
   }
 
   async waitForPageLoad() {
     await this.page.waitForURL(ROUTES[this.projectName].status + '/**');
+    await expect(this.successIcon).toBeVisible();
   }
 
   async assertReservationConfirmation() {
     // Verify all key elements are present
-    await expect(this.successIcon).toBeVisible();
     await expect(this.reservationSummary).toBeVisible();
 
     // TODO: assert the rest

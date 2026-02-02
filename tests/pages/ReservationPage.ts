@@ -1,12 +1,15 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { ProjectName, ROUTES } from '../lib/routes';
 import { OrderSummaryComponent } from '../components/OrderSummaryComponent';
+import { PaymentMethodComponent } from '../components/PaymentMethodComponent';
+import { PaymentMethodType, VOUCHER_METHOD } from '../lib/paymentMethods';
 
 /**
  * Page Object Model for Reservation Page (Checkout)
  * Reference: https://playwright.dev/docs/pom
  */
 export class ReservationPage {
+  readonly VOUCHER_STATUS_ICON_ERROR_CLASS = 'is-error';
   readonly page: Page;
   readonly projectName: ProjectName;
   readonly firstNameInput: Locator;
@@ -22,6 +25,8 @@ export class ReservationPage {
   readonly businessCheckbox: Locator;
   readonly marketingCheckbox: Locator;
   readonly orderSummary: OrderSummaryComponent;
+  readonly paymentMethod: PaymentMethodComponent;
+  readonly voucherStatusIcon: Locator;
 
   constructor(page: Page, projectName: ProjectName) {
     this.page = page;
@@ -44,13 +49,18 @@ export class ReservationPage {
     this.cancellationCheckbox = page.locator('#cancellation-conditions');
     this.businessCheckbox = page.locator('#business-conditions');
     this.marketingCheckbox = page.locator('#marketing');
+    this.voucherStatusIcon = page.locator('.payment-form__coupon-status-icon');
 
     // Order Summary Component
     this.orderSummary = new OrderSummaryComponent(page);
+
+    // Payment Method Component
+    this.paymentMethod = new PaymentMethodComponent(page);
   }
 
   async waitForPageLoad() {
     await this.page.waitForURL('**' + ROUTES[this.projectName].reservation + '/**');
+    await expect(this.firstNameInput).toBeVisible();
   }
 
   async fillGuestDetails(details: {
@@ -77,9 +87,7 @@ export class ReservationPage {
     await this.voucherButton.click();
 
     // Fill voucher code
-    const voucherInput = this.page
-      .locator('.payment-form__coupon-form input')
-      .first();
+    const voucherInput = this.page.locator('.payment-form__coupon-form input').first();
     if (await voucherInput.isVisible()) {
       await voucherInput.fill(code);
 
@@ -91,37 +99,29 @@ export class ReservationPage {
     }
   }
 
+  async assertVoucherAppliedSuccessfully() {
+    // Check that the status icon does NOT have is-error class
+    await expect(this.voucherStatusIcon).not.toContainClass(this.VOUCHER_STATUS_ICON_ERROR_CLASS);
+  }
+
+  async assertVoucherAppliedUnsuccessfully() {
+    // Check that the status icon has is-error class
+    await expect(this.voucherStatusIcon).toContainClass(this.VOUCHER_STATUS_ICON_ERROR_CLASS);
+  }
+
+  async applyVoucherIfNeeded(method: PaymentMethodType, voucherCode: string) {
+    if (method === VOUCHER_METHOD) {
+      await this.insertAndApplyVoucher(voucherCode);
+      await this.assertVoucherAppliedSuccessfully();
+    }
+  }
+
   async selectPaymentMethod(methodName: string): Promise<void> {
-    // Click the payment method dropdown to reveal options
-    const paymentDropdown = this.page.locator('.payment-form__option .select__button');
-    await paymentDropdown.click();
-    await this.page.waitForLoadState('domcontentloaded');
-
-    // Map payment method identifiers to UI display names
-    const methodMapping: { [key: string]: RegExp } = {
-      'pluxee-benefit-card': /Pluxee/i,
-      'edenred-benefit-card': /Edenred/i,
-      'bank-transfer': /Bank|Transfer|Převodem|Przelewem/i,
-      voucher: /Voucher|Poukaz/i,
-    };
-
-    // Get the regex pattern for the method
-    const pattern = methodMapping[methodName];
-    if (!pattern) {
-      throw new Error(`Unknown payment method: ${methodName}`);
-    }
-
-    // Find and click the payment method button
-    const methodButton = this.page.locator('button').filter({ hasText: pattern }).first();
-    if (!(await methodButton.isVisible({ timeout: 2000 }).catch(() => false))) {
-      throw new Error(`Payment method "${methodName}" is not available. Available: ${methodName}`);
-    }
-
-    await methodButton.click();
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.paymentMethod.selectPaymentMethod(methodName);
   }
 
   async submitReservation() {
+    await this.orderSummary.assertReserveButtonEnabled();
     await this.orderSummary.submitReservation();
   }
 
