@@ -176,6 +176,7 @@ These codes can be used in tests by:
 1. Configuring them in `playwright.config.ts` as `validVoucherCode`
 2. They will be automatically injected via the `validVoucherCode` fixture
 3. Tests like `unhappy-path-invalid-voucher.spec.ts` has hardcoded one
+4. Tests like `unhappy-path-invalid-room-count.spec.ts` has hardcoded one too - could be better
 
 ## Development
 
@@ -344,6 +345,7 @@ However, this approach is **not fully reliable** due to:
 - Use dedicated test booking accounts with pre-saved URLs
 - Consider fetching from a test data service/API instead
 - Monitor and update selectors when Booking.com structure changes
+- Get API for fetching booking URL
 
 ### Locator Strategy
 Locators are based on semantic selectors (getByRole) and CSS classes without testId attributes because:
@@ -358,6 +360,7 @@ Locators are based on semantic selectors (getByRole) and CSS classes without tes
 - Would eliminate need for language-specific regex patterns
 - Consider implementing Vue component testing if Vue structure becomes more accessible
 - Add API for voucher creation and deletion
+- API for fetching booking URL
 
 ## AI Usage & Implementation
 
@@ -373,7 +376,9 @@ This project was developed in collaboration with an AI assistant (GitHub Copilot
 The AI proved invaluable in:
 - Rapidly prototyping test structure
 - Identifying semantic selector patterns that work across HTML variants
+- Generate tests + POMC
 - Using Playwright Agents to navigate and inspect actual pages in different projects (CZ, PL, Whitelabel)
+- Using Playwright Agents to create the scenarios
 - Comparing HTML structures across variants to find universal selector patterns
 - Refactoring from CSS-class-based selectors to role-based selectors
 - Handling multi-language test assertions
