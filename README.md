@@ -357,6 +357,7 @@ Locators are based on semantic selectors (getByRole) and CSS classes without tes
 - This would significantly improve selector stability and maintainability
 - Would eliminate need for language-specific regex patterns
 - Consider implementing Vue component testing if Vue structure becomes more accessible
+- Add API for voucher creation and deletion
 
 ## AI Usage & Implementation
 
@@ -367,7 +368,7 @@ This project was developed in collaboration with an AI assistant (GitHub Copilot
 - **Selector strategy**: Semantic selectors with language-agnostic regex patterns
 - **Error handling**: Multi-language error message validation
 - **Best practices guidance**: WebFirst assertions and test isolation
-- **Playwright Agents**: Used MCP Playwright tools for interactive inspection of live project variants to identify working selectors across different HTML structures
+- **Playwright Agents**: Used MCP Playwright tools for interactive inspection of live project variants to identify working selectors across different HTML structures and generating tests
 
 The AI proved invaluable in:
 - Rapidly prototyping test structure
