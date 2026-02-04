@@ -18,20 +18,27 @@ setup('prepare booking URLs', async ({ browser }) => {
 
     const todayDate = new Date();
     const checkInDate = new Date(todayDate);
+    await bookingPage.waitForLoadState('domcontentloaded');
+    const consentElement = bookingPage.locator('#onetrust-reject-all-handler');
+
+    await consentElement.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+    await consentElement.click();
 
     await bookingPage.getByTestId('searchbox-dates-container').click();
 
+    const datePickerCalendar = bookingPage.getByTestId('searchbox-datepicker-calendar');
+
+    await datePickerCalendar.waitFor({ state: 'visible' });
+
     const checkOutDate = new Date(todayDate);
     checkOutDate.setDate(checkOutDate.getDate() + 10); // 10 days from today
-    await bookingPage
-      .getByTestId('searchbox-datepicker-calendar')
+
+    await datePickerCalendar
       .locator('[data-date="' + checkInDate.toISOString().split('T')[0] + '"]')
       .click();
-    await bookingPage
-      .getByTestId('searchbox-datepicker-calendar')
+    await datePickerCalendar
       .locator('[data-date="' + checkOutDate.toISOString().split('T')[0] + '"]')
       .click();
-    await bookingPage.waitForLoadState('domcontentloaded');
 
     const destinationInput = bookingPage
       .getByTestId('destination-container')

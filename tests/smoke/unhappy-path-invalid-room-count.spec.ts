@@ -1,6 +1,12 @@
 /* eslint-disable playwright/expect-expect */
 import { test } from '../fixtures/bookingFixture';
 
+test.use({
+  // Override booking URL with one that has 2 adults but we will try to select more rooms than allowed
+  bookingUrl:
+    'https://www.booking.com/hotel/cz/clarion-congress-prague.cs.html?aid=304142&label=gen173nr-10CAQoggI49ANIM1gEaDqIAQGYATO4AQfIAQ_YAQPoAQH4AQGIAgGoAgG4ApvPjswGwAIB0gIkZWZmYjAwNWEtZTk2OS00MjhlLWFlZjgtZDM1OWFiYzc4ZDJk2AIB4AIB&sid=eadea571e115a8a1b004c649ac6c5ef0&all_sr_blocks=7761602_94292436_1_1_0&checkin=2027-01-01&checkout=2027-01-09&dest_id=-553173&dest_type=city&dist=0&group_adults=1&group_children=0&hapos=1&highlighted_blocks=7761602_94292436_1_1_0&hpos=1&matching_block_id=7761602_94292436_1_1_0&no_rooms=1&req_adults=1&req_children=0&room1=A&sb_price_type=total&sr_order=popularity&sr_pri_blocks=7761602_94292436_1_1_0__2787144&srepoch=1770238499&srpvid=eeac930d99190210&type=total&ucfs=1&#room_7761602',
+});
+
 test.describe('Unhappy Path - Invalid Room Count', { tag: '@smoke' }, () => {
   test('Attempt to select more rooms than number of adults', async ({
     bookingUrl,
