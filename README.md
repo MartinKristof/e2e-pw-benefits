@@ -360,7 +360,7 @@ Locators are based on semantic selectors (getByRole) and CSS classes without tes
 - Would eliminate need for language-specific regex patterns
 - Consider implementing Vue component testing if Vue structure becomes more accessible
 - Add API for voucher creation and deletion
-- API for fetching booking URL
+- API for fetching booking URL (or scraping)
 
 ## AI Usage & Implementation
 
